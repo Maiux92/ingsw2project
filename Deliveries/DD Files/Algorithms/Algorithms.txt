@@ -1,0 +1,65 @@
+public enum Status {
+	BUSY, AVAILABLE, OFFLINE;
+}
+
+public void insertDriverToQueue(Driver driver, Queue queue) {
+	int driverID = driver.getID();
+	int queueID = queue.getID();
+	// driver not busy
+	if(BUSY.equals(TaxiManager.getDriverStatus(driver))) {
+		return;
+	}
+	// driver not in queue
+	if(DatabaseManager.select('driver_queue', 'queue_id = '+queueID+' AND driver_id = '+driverID).isEmpty()) {
+		DatabaseManager.insert('driver_queue', 'queue_id = '+queueID+', driver_id = '+driverID);
+	}
+}
+
+public void setDriverStatus(Driver driver, Status status) {
+	int driverID = driver.getID()
+	if(!status.equals(Status.AVAILABLE)) {
+		Queue queue = this.getDriverQueue(driver);
+		if(!queue.isEmpty()) {
+			QueueManager.removeDriverFromQueue(driver, queue);
+		}
+	}
+	else {
+		ArrayList<Double> coordinates = this.getTaxiLocation(driver);
+		Double latitude = coordinates.get(0);
+		Double longitude = coordinates.get(1);
+		Queue queue = LocationManager.getQueue(latitude, longitude);
+		QueueManager.insertDriverToQueue(driver, queue);
+	}
+	DatabaseManager.update('driver', 'status = '+status.toString(), 'driverID = '+driverID);
+}
+
+
+public void assignTaxi(Request request, Driver driver) {
+	if(!TaxiManager.getDriverStatus(driver).equals(Status.AVAILABLE)) {
+		Queue queue = TaxiManager.getDriverQueue(driver);
+		Driver newDriver = QueueManager.getFirstDriverInQueue(queue);
+		this.assignTaxi(request, newDriver);
+		return;
+	}
+	int driverID = driver.getID();
+	int requestID = request.getID();
+	DatabaseManager.update('request', 'driver = '+driverID, 'request = '+requestID);
+	this.checkRequestAssignment(request);
+
+}
+
+@Async
+public Future<void> checkRequestAssignment(Request request) throws InterruptedException {
+	try {
+    	Thread.sleep(30*1000); // 30 seconds
+    } catch(InterruptedException ex) {
+   		Thread.currentThread().interrupt();
+	}
+	if(!RequestManager.getRequestStatus(request).equals(RequestStatus.ACCEPTED)) {
+    	Driver driver = RequestManager.getRequestDriver(request);
+    	Queue queue = TaxiManager.getDriverQueue(driver);
+    	QueueManager.moveDriverToBottom(queue, driver);
+    	driver = QueueManager.getFirstDriverInQueue(queue);
+    	RequestManager.assignTaxi(request, driver);
+    }
+}
