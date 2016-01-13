@@ -4,6 +4,6 @@ In the "Support Files" folder there are all the support documentation, images an
 
 Links to the latest version of the documents:
 
-**RASD**: [download](https://github.com/Maiux92/ingsw2project/tree/master/Deliveries/RASD_v3.pdf).
-**DD**: [download](https://github.com/Maiux92/ingsw2project/tree/master/Deliveries/DD_v2.pdf).
-**Inspection**: [download](https://github.com/Maiux92/ingsw2project/tree/master/Deliveries/CodeInspection.pdf).
+**RASD**: [download](https://github.com/Maiux92/ingsw2project/tree/master/Deliveries/RASD_v3.pdf)
+**DD**: [download](https://github.com/Maiux92/ingsw2project/tree/master/Deliveries/DD_v2.pdf)
+**Inspection**: [download](https://github.com/Maiux92/ingsw2project/tree/master/Deliveries/CodeInspection.pdf)
